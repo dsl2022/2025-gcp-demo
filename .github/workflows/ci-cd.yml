@@ -1,0 +1,51 @@
+name: GCP Demo CI/CD
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  TF_WORKING_DIR: terraform      # where your .tf files live
+  IMAGE_NAME: go-server-demo
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker
+
+      - name: Build & push Docker image
+        id: docker
+        run: |
+          TAG=${GITHUB_SHA::7}
+          IMAGE=gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:${TAG}
+          docker build -t $IMAGE go-server-demo/
+          docker push $IMAGE
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init -upgrade
+
+      - name: Terraform Apply
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform apply -auto-approve \
+            -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var="image=${{ steps.docker.outputs.image }}"
