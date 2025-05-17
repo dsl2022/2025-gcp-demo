@@ -1,1 +1,51 @@
 gcp-demo-460104-0ad938b2f7e9.json
+.terraform.lock.hcl
+# Terraform files
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars
+
+# Kubernetes files
+.kube/
+
+# Go binary and build files
+bin/
+*.exe
+*.out
+*.test
+
+# Go module dependencies
+vendor/
+
+# Log files
+*.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# OS specific files
+.DS_Store  # macOS
+Thumbs.db  # Windows
+
+# Docker
+docker-compose.override.yml
+
+# Google Cloud (authentication, etc.)
+*.json  # GCP service account keys (Make sure to never push these to public repositories!)
+
+# Ignore other sensitive files (can be added as needed)
+*.env
+
+# Build directories (if any)
+build/
+dist/
+out/
+
+# Misc
+node_modules/
