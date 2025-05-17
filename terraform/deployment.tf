@@ -22,7 +22,7 @@ resource "kubernetes_deployment" "go_server_demo" {
       spec {
         container {
           name  = "go-server-demo"
-          image = "gcr.io/${var.project_id}/go-server-demo:v2"
+          image = var.image
           port {
             container_port = 8080
           }
