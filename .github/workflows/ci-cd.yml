@@ -1,37 +1,61 @@
-name: CI-CD
+name: GCP Demo CI/CD
+
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
+
+env:
+  TF_WORKING_DIR: terraform
+  IMAGE_NAME: go-server-demo
+
 jobs:
-  build-test-deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Check out code
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-go@v3
+      # 1. Authenticate to GCP using the Auth action
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
         with:
-          go-version: "1.20"
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Run unit tests
-        run: go test -v ./...
-
-      - name: Build Docker image
-        run: docker build -t gcr.io/$GCP_PROJECT/transaction-app:${{ github.sha }} .
-
-      - name: Set up GCloud
+      # 2. Install gcloud (no credentials args here)
+      - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          project_id: ${{ secrets.GCP_PROJECT }}
-          export_default_credentials: true
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          version: 'latest'               # or pin to a specific version
+          install_components:            # optional, e.g. kubectl
+            - gke-gcloud-auth-plugin
+            - kubectl
 
-      - name: Push image to GCR
-        run: docker push gcr.io/$GCP_PROJECT/transaction-app:${{ github.sha }}
+      - name: Configure Docker for GCR
+        run: |
+          gcloud auth configure-docker
 
-      - name: Deploy to Cloud Run
-        uses: google-github-actions/deploy-cloudrun@v0
+      - name: Build & push Docker image
+        id: docker
+        run: |
+          TAG=${GITHUB_SHA::7}
+          IMAGE=gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:${TAG}
+          docker build -t $IMAGE go-server-demo/
+          docker push $IMAGE
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
-          image: gcr.io/$GCP_PROJECT/transaction-app:${{ github.sha }}
-          service: transaction-service
-          region: us-central1
-          project_id: ${{ secrets.GCP_PROJECT }}
+          terraform_version: 1.5.0
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init -upgrade
+
+      - name: Terraform Apply
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform apply -auto-approve \
+            -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var="image=${{ steps.docker.outputs.image }}"
