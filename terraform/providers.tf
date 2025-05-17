@@ -19,7 +19,7 @@ terraform {
 data "google_client_config" "default" {}
 
 provider "google" {
-  credentials = file("../gcp-demo-460104-0ad938b2f7e9.json")
+  # credentials = file("../gcp-demo-460104-0ad938b2f7e9.json")
   project     = var.project_id 
   region      = "us-central1"  
 }
