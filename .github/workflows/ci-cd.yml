@@ -1,51 +1,37 @@
-name: GCP Demo CI/CD
-
+name: CI-CD
 on:
   push:
-    branches: [ main ]
-
-env:
-  TF_WORKING_DIR: terraform      # where your .tf files live
-  IMAGE_NAME: go-server-demo
-
+    branches: [ "main" ]
 jobs:
-  build-and-deploy:
+  build-test-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Authenticate to GCP
+      - uses: actions/setup-go@v3
+        with:
+          go-version: "1.20"
+
+      - name: Run unit tests
+        run: go test -v ./...
+
+      - name: Build Docker image
+        run: docker build -t gcr.io/$GCP_PROJECT/transaction-app:${{ github.sha }} .
+
+      - name: Set up GCloud
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT }}
           export_default_credentials: true
 
-      - name: Configure Docker for GCR
-        run: gcloud auth configure-docker
+      - name: Push image to GCR
+        run: docker push gcr.io/$GCP_PROJECT/transaction-app:${{ github.sha }}
 
-      - name: Build & push Docker image
-        id: docker
-        run: |
-          TAG=${GITHUB_SHA::7}
-          IMAGE=gcr.io/${{ secrets.GCP_PROJECT_ID }}/${IMAGE_NAME}:${TAG}
-          docker build -t $IMAGE go-server-demo/
-          docker push $IMAGE
-          echo "image=$IMAGE" >> $GITHUB_OUTPUT
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v0
         with:
-          terraform_version: 1.5.0
-
-      - name: Terraform Init
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init -upgrade
-
-      - name: Terraform Apply
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform apply -auto-approve \
-            -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
-            -var="image=${{ steps.docker.outputs.image }}"
+          image: gcr.io/$GCP_PROJECT/transaction-app:${{ github.sha }}
+          service: transaction-service
+          region: us-central1
+          project_id: ${{ secrets.GCP_PROJECT }}
