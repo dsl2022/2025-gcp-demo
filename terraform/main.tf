@@ -1,7 +1,7 @@
 resource "google_container_cluster" "primary" {
   name     = "gcp-demo-cluster"
   location = "us-central1-a"  
-  deletion_protection = false
+  # deletion_protection = false
   initial_node_count = 3 
 
   node_config {

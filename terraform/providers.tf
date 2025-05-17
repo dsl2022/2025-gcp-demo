@@ -1,5 +1,10 @@
 terraform {
+  backend "gcs" {
+    bucket = "gcp-demo-tf-state-bucket" 
+    prefix = "terraform/state"
+  }
   required_providers {
+    
     google = {
       source  = "hashicorp/google"
       version = "~> 6.0"     # or "~> 5.0" if you want just the v5 line
