@@ -16,25 +16,22 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      # 1. Authenticate to GCP using the Auth action
+      # 1. Authenticate to GCP
       - name: Authenticate to GCP
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      # 2. Install gcloud (no credentials args here)
+      # 2. Install Cloud SDK (and kubectl)
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-          version: 'latest'               # or pin to a specific version
-          install_components:            # optional, e.g. kubectl
-            - gke-gcloud-auth-plugin
-            - kubectl
+          version: 'latest'
+          install_components: 'gke-gcloud-auth-plugin,kubectl'  # <-- comma-separated string
 
       - name: Configure Docker for GCR
-        run: |
-          gcloud auth configure-docker
+        run: gcloud auth configure-docker
 
       - name: Build & push Docker image
         id: docker
