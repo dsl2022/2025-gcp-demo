@@ -15,7 +15,7 @@ type server struct {
 }
 
 func (s *server) ProcessTransfer(ctx context.Context, req *pb.TransferRequest) (*pb.TransferResponse, error) {
-	// (1) Simulate crypto conversion concurrently
+	// Simulate crypto conversion concurrently
 	resultCh := make(chan error, 1)
 	go func() {
 		log.Printf("Converting %.2f %s → %s (transfer %s)",
@@ -29,10 +29,8 @@ func (s *server) ProcessTransfer(ctx context.Context, req *pb.TransferRequest) (
 		}, nil
 	}
 
-	// (2) Simulate ledger update
+	// Simulate ledger update
 	log.Printf("Ledger updated for transfer %s", req.TransferId)
-
-	// (3) Publish audit event asynchronously
 	evt := map[string]interface{}{
 		"transfer_id":     req.TransferId,
 		"from_account":    req.FromAccount,
@@ -49,8 +47,6 @@ func (s *server) ProcessTransfer(ctx context.Context, req *pb.TransferRequest) (
 	} else {
 		log.Printf("published audit event with ID: %s", msgID)
 	}
-
-	// (4) Respond
 	return &pb.TransferResponse{
 		TransferId: req.TransferId, Success: true, Message: "Transfer completed",
 	}, nil

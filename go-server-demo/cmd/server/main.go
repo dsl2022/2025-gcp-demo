@@ -12,7 +12,7 @@ import (
 
 const (
 	grpcPort = ":50051"
-	// add projectID to env
+	//TODO: add projectID to env
 	projectID = "gcp-demo-460104"
 	topicID   = "audit-events"
 )
