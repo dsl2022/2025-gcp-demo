@@ -11,7 +11,7 @@ resource "google_sql_database_instance" "postgres" {
   database_version = "POSTGRES_17"
 
   settings {
-    tier            = "db-perf-optimized-N2-2"
+    tier            = "db-perf-optimized-N-2"
     disk_size       = 10
     disk_type       = "PD_SSD"
     backup_configuration {
