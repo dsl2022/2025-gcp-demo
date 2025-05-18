@@ -2,6 +2,9 @@
 
 
 resource "google_sql_database_instance" "postgres" {
+  depends_on = [
+    google_project_service.sqladmin
+  ]
   project          = var.project_id
   name             = var.db_instance_name
   region           = var.region
