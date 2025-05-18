@@ -1,0 +1,27 @@
+// go-server-demo/transfer.proto
+syntax = "proto3";
+
+package transfer;
+
+// THIS LINE tells protoc-gen-go where to import this package
+option go_package = "github.com/dsl2022/2025-gcp-demo/go-server-demo/transfer;transfer";
+
+// gRPC service for processing transfers
+service TransferService {
+  rpc ProcessTransfer(TransferRequest) returns (TransferResponse) {}
+}
+
+message TransferRequest {
+  string transfer_id     = 1;
+  string from_account    = 2;
+  string to_account      = 3;
+  double amount          = 4;
+  string source_currency = 5;
+  string target_currency = 6;
+}
+
+message TransferResponse {
+  string transfer_id = 1;
+  bool   success     = 2;
+  string message     = 3;
+}
