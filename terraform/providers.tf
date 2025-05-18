@@ -29,11 +29,11 @@ resource "google_project_service" "cloudresourcemanager" {
   service = "cloudresourcemanager.googleapis.com"
 }
 
-# provider "kubernetes" {
-#   host                   = google_container_cluster.primary.endpoint
-#   cluster_ca_certificate = base64decode(google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
-#   token                  = data.google_client_config.default.access_token
-# }
+resource "google_project_service" "sqladmin" {
+  project = var.project_id
+  service = "sqladmin.googleapis.com"
+}
+
 
 provider "kubernetes" {
   host = "https://${google_container_cluster.primary.endpoint}"

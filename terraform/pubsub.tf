@@ -16,5 +16,5 @@ resource "google_pubsub_subscription" "audit_events_sub" {
     dead_letter_topic       = google_pubsub_topic.audit_events_dlq.id
     max_delivery_attempts   = 5
   }
-  message_retention_duration = "168h"  # 7 days
+  message_retention_duration = "604800s"  # 7 days
 }
