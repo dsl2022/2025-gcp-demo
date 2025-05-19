@@ -9,8 +9,8 @@ resource "kubernetes_service" "go_server_demo" {
     }
 
     port {
-      port        = 80
-      target_port = 8080
+      port        = 50051
+      target_port = 50051
     }
 
     type = "LoadBalancer"

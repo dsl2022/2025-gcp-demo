@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
+	"os"
 	"time"
 
 	pb "github.com/dsl2022/2025-gcp-demo/go-server-demo/transfer"
@@ -11,9 +13,20 @@ import (
 )
 
 func main() {
-	// Establish a connection (no I/O yet)
+	// 1) Parse the server address from --addr or SERVER_ADDR
+	addr := flag.String("addr", "", "gRPC server address (host:port)")
+	flag.Parse()
+
+	if *addr == "" {
+		*addr = os.Getenv("SERVER_ADDR")
+	}
+	if *addr == "" {
+		log.Fatal("must specify server address with --addr or SERVER_ADDR")
+	}
+
+	// 2) Establish a connection (no I/O yet)
 	conn, err := grpc.NewClient(
-		"localhost:50051",
+		*addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
@@ -21,16 +34,16 @@ func main() {
 	}
 	defer conn.Close()
 
-	// Create a stub and call your RPC
+	// 3) Create a stub and call your RPC
 	client := pb.NewTransferServiceClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	resp, err := client.ProcessTransfer(ctx, &pb.TransferRequest{
-		TransferId:     "tx‑newclient‑001",
+		TransferId:     "live-test-001",
 		FromAccount:    "ACC001",
 		ToAccount:      "ACC002",
-		Amount:         99.99,
+		Amount:         42.00,
 		SourceCurrency: "USD",
 		TargetCurrency: "EUR",
 	})
