@@ -24,7 +24,7 @@ resource "kubernetes_deployment" "go_server_demo" {
           name  = "go-server-demo"
           image = var.image
           port {
-            container_port = 8080
+            container_port = 50051
           }
         }
       }
