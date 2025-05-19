@@ -49,3 +49,7 @@ out/
 
 # Misc
 node_modules/
+
+# Protobuf generated files
+/transfer/transfer.pb.go
+/transfer/transfer_grpc.pb.go
