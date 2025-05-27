@@ -9,6 +9,10 @@ terraform {
       source  = "hashicorp/google"
       version = "~> 6.0"     # or "~> 5.0" if you want just the v5 line
     }
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = "~> 6.0"
+    }
     kubernetes = {
       source  = "hashicorp/kubernetes"
       version = "~> 2.0"
@@ -22,6 +26,11 @@ provider "google" {
   # credentials = file("../gcp-demo-460104-0ad938b2f7e9.json")
   project     = var.project_id 
   region      = "us-central1"  
+}
+
+provider "google-beta" {
+  project = var.project_id
+  region  = var.region
 }
 
 resource "google_project_service" "cloudresourcemanager" {
