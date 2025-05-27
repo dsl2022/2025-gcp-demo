@@ -73,7 +73,7 @@ jobs:
       - name: Terraform Apply
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
-          terraform apply -auto-approve \
+          terraform apply -auto-approve -lock=false \
             -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
             -var="image=${{ steps.docker.outputs.image }}" \
             -var="db_username=${{ secrets.DB_USERNAME }}" \
