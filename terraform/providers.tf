@@ -40,9 +40,20 @@ resource "google_project_service" "cloudresourcemanager" {
 
 resource "google_project_service" "sqladmin" {
   project = var.project_id
+  depends_on = [
+    google_project_service.cloudresourcemanager
+  ]
   service = "sqladmin.googleapis.com"
 }
 
+resource "google_project_service" "pubsub" {
+  project = var.project_id
+  service = "pubsub.googleapis.com"
+
+  depends_on = [
+    google_project_service.cloudresourcemanager
+  ]
+}
 
 provider "kubernetes" {
   host = "https://${google_container_cluster.primary.endpoint}"
