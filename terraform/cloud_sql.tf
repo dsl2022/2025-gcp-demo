@@ -2,6 +2,7 @@
 
 
 resource "google_sql_database_instance" "postgres" {
+  provider            = google-beta
   depends_on = [
     google_project_service.sqladmin
   ]
@@ -9,7 +10,7 @@ resource "google_sql_database_instance" "postgres" {
   name             = var.db_instance_name
   region           = var.region
   database_version = "POSTGRES_17"
-
+  deletion_protection = false
   settings {
     tier            = "db-perf-optimized-N-2"
     disk_size       = 10

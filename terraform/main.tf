@@ -1,9 +1,10 @@
 resource "google_container_cluster" "primary" {
+  provider            = google-beta
   name     = "gcp-demo-cluster"
   location = "us-central1-a"  
   # deletion_protection = false
   initial_node_count = 3 
-
+  deletion_protection = false
   node_config {
     machine_type = "e2-medium"
     oauth_scopes = [
