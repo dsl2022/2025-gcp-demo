@@ -35,6 +35,7 @@ provider "google-beta" {
 
 resource "google_project_service" "cloudresourcemanager" {
   project = var.project_id 
+  disable_dependent_services = true
   service = "cloudresourcemanager.googleapis.com"
 }
 
@@ -43,13 +44,14 @@ resource "google_project_service" "sqladmin" {
   depends_on = [
     google_project_service.cloudresourcemanager
   ]
+  disable_dependent_services = true
   service = "sqladmin.googleapis.com"
 }
 
 resource "google_project_service" "pubsub" {
   project = var.project_id
   service = "pubsub.googleapis.com"
-
+  disable_dependent_services = true
   depends_on = [
     google_project_service.cloudresourcemanager
   ]
