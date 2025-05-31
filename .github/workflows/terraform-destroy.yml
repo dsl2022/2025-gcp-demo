@@ -35,4 +35,7 @@ jobs:
         run: |
           terraform destroy -auto-approve -lock=false \
             -var="project_id=${{ secrets.GCP_PROJECT_ID }}" \
+            -var="image=${{ steps.docker.outputs.image }}" \
+            -var="db_username=${{ secrets.DB_USERNAME }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}" \
             -var="oauth_client_id=${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}"
